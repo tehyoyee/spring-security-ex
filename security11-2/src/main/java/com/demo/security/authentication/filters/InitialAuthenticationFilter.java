@@ -13,15 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,9 +28,6 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
-
-//    @Autowired
-//    private AuthenticationManager manager;
 
     @Value("${jwt.signing.key}")
     private String signingKey;
