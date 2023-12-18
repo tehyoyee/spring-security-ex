@@ -1,6 +1,6 @@
 package com.demo.security.config;
 
-//import com.demo.security.authentication.filters.InitialAuthenticationFilter;
+import com.demo.security.authentication.filters.InitialAuthenticationFilter;
 import com.demo.security.authentication.filters.JwtAuthenticationFilter;
 import com.demo.security.authentication.provider.OtpAuthenticationProvider;
 import com.demo.security.authentication.provider.UsernamePasswordAuthenticationProvider;
@@ -9,18 +9,25 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
-//    @Autowired
-//    private InitialAuthenticationFilter initialAuthenticationFilter;
+    @Autowired
+    private InitialAuthenticationFilter initialAuthenticationFilter;
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -30,8 +37,10 @@ public class SecurityConfig {
 
     @Autowired
     private UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider;
+
 //    @Autowired
-//    private AuthenticationManager manager;
+//    private AuthenticationConfiguration authenticationConfiguration;
+
 //    @Override
 //    protected void configure(AuthenticationManagerBuilder auth) {
 //        auth.authenticationProvider(otpAuthenticationProvider)
@@ -39,27 +48,30 @@ public class SecurityConfig {
 //    }
 
 //    @Bean
-//    AuthenticationManager authenticationManager(AuthenticationManagerBuilder managerBuilder) throws Exception {
-//        return managerBuilder.authenticationProvider(otpAuthenticationProvider)
-//                .authenticationProvider(usernamePasswordAuthenticationProvider).build();
+//    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+//        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+//        authenticationManagerBuilder.authenticationProvider(otpAuthenticationProvider).authenticationProvider(usernamePasswordAuthenticationProvider);
+//        // Get AuthenticationManager
+//        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+//        return authenticationManager;
 //    }
+//    @Bean
+//    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+//        return authenticationConfiguration.getAuthenticationManager();
+//    }
+
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf
-                .disable());
-        http
-                .authenticationProvider(otpAuthenticationProvider)
-                .authenticationProvider(usernamePasswordAuthenticationProvider);
-//                .authorizeHttpRequests(auth -> auth
-//                .anyRequest().authenticated());
+        http.csrf(csrf -> csrf.disable());
         http
                 .authorizeHttpRequests(auth -> auth
                 .anyRequest().authenticated());
-//        http.addFilterAt(
-//                        initialAuthenticationFilter,
-//                        BasicAuthenticationFilter.class)
-        http
+//        http.apply(customDsl());
+        http.addFilterAt(
+                        initialAuthenticationFilter,
+                        BasicAuthenticationFilter.class)
                 .addFilterAfter(
                         jwtAuthenticationFilter,
                         BasicAuthenticationFilter.class
