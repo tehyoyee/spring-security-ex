@@ -19,6 +19,7 @@ public class CustomCsrfTokenRepository implements CsrfTokenRepository {
 	@Override
 	public CsrfToken generateToken(HttpServletRequest httpServletRequest) {
 		String uuid = UUID.randomUUID().toString();
+		System.out.println("uuid " + uuid);
 		return new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", uuid);
 	}
 
@@ -26,7 +27,7 @@ public class CustomCsrfTokenRepository implements CsrfTokenRepository {
 	public void saveToken(CsrfToken csrfToken, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
 		String identifier = httpServletRequest.getHeader("X-IDENTIFIER");
 		Optional<Token> existingToken = jpaTokenRepository.findTokenByIdentifier(identifier);
-
+		System.out.println("X-IDENTIFIER " + identifier);
 		if (existingToken.isPresent()) {
 			Token token = existingToken.get();
 			token.setToken(csrfToken.getToken());
@@ -42,6 +43,9 @@ public class CustomCsrfTokenRepository implements CsrfTokenRepository {
 	public CsrfToken loadToken(HttpServletRequest httpServletRequest) {
 		String identifier = httpServletRequest.getHeader("X-IDENTIFIER");
 		Optional<Token> existingToken = jpaTokenRepository.findTokenByIdentifier(identifier);
+		System.out.println("==== loadToken ====");
+		System.out.println("X-IDENTIFIER " + identifier);
+//		System.out.println("existingToken " + Optional.ofNullable(existingToken.get().getToken()) + Optional.ofNullable(existingToken.get().getId()) + Optional.ofNullable(existingToken.get().getIdentifier()));
 
 		if (existingToken.isPresent()) {
 			Token token = existingToken.get();
