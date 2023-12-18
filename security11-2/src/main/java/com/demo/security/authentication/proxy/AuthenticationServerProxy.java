@@ -19,7 +19,7 @@ public class AuthenticationServerProxy {
 
     public void sendAuth(String username, String password) {
         String url = baseUrl + "/user/auth";
-
+        System.out.println("ASDFSADF");
         var body = new User();
         body.setUsername(username);
         body.setPassword(password);

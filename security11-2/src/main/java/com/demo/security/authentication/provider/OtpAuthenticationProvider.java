@@ -19,6 +19,7 @@ public class OtpAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String code = String.valueOf(authentication.getCredentials());
+        System.out.println(code);
         boolean result = proxy.sendOTP(username, code);
 
         if (result) {
