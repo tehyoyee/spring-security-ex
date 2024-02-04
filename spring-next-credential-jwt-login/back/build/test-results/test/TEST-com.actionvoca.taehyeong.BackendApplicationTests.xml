@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.actionvoca.taehyeong.BackendApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-02-01T09:06:58" hostname="Taehyeongs-MacBook-Pro.local" time="0.292">
+  <properties/>
+  <testcase name="contextLoads()" classname="com.actionvoca.taehyeong.BackendApplicationTests" time="0.292"/>
+  <system-out><![CDATA[18:06:56.591 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.actionvoca.taehyeong.BackendApplicationTests]: BackendApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:06:56.627 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.actionvoca.taehyeong.BackendApplication for test class com.actionvoca.taehyeong.BackendApplicationTests
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.1)
+
+2024-02-01T18:06:56.772+09:00  INFO 7387 --- [    Test worker] c.a.taehyeong.BackendApplicationTests    : Starting BackendApplicationTests using Java 17.0.9 with PID 7387 (started by taehyeong in /Users/taehyeong/workspace/real-actionvoca)
+2024-02-01T18:06:56.772+09:00  INFO 7387 --- [    Test worker] c.a.taehyeong.BackendApplicationTests    : No active profile set, falling back to 1 default profile: "default"
+2024-02-01T18:06:57.035+09:00  INFO 7387 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2024-02-01T18:06:57.060+09:00  INFO 7387 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 22 ms. Found 2 JPA repository interfaces.
+2024-02-01T18:06:57.260+09:00  INFO 7387 --- [    Test worker] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2024-02-01T18:06:57.279+09:00  INFO 7387 --- [    Test worker] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2024-02-01T18:06:57.291+09:00  INFO 7387 --- [    Test worker] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2024-02-01T18:06:57.375+09:00  INFO 7387 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2024-02-01T18:06:57.386+09:00  INFO 7387 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2024-02-01T18:06:57.682+09:00  INFO 7387 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@68454ed5
+2024-02-01T18:06:57.683+09:00  INFO 7387 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2024-02-01T18:06:57.723+09:00  WARN 7387 --- [    Test worker] org.hibernate.orm.deprecation            : HHH90000025: MySQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2024-02-01T18:06:57.732+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(12, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@ca10069) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@45e69324)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(-9, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@3c89b864) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@3400d6fa)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(-3, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@30a62a5b) replaced previous registration(org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@41a8f0d8)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(4003, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@30133a11) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@2168def)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(4001, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3639b04) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@5cb8580)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(4002, org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@2ca1e49a) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@1aee6d14)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(2004, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@54a6ef6) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@5c740c5a)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(2005, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@7fd2a67a) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@163df259)
+2024-02-01T18:06:57.733+09:00 DEBUG 7387 --- [    Test worker] o.h.t.d.sql.spi.DdlTypeRegistry          : addDescriptor(2011, org.hibernate.type.descriptor.sql.internal.CapacityDependentDdlType@405603b6) replaced previous registration(org.hibernate.type.descriptor.sql.internal.DdlTypeImpl@3c3cd13a)
+2024-02-01T18:06:58.073+09:00  INFO 7387 --- [    Test worker] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2024-02-01T18:06:58.118+09:00  INFO 7387 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2024-02-01T18:06:58.295+09:00  WARN 7387 --- [    Test worker] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2024-02-01T18:06:58.413+09:00  INFO 7387 --- [    Test worker] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@5dcec8e9, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@4bc49d70, org.springframework.security.web.context.SecurityContextHolderFilter@2ac7c683, org.springframework.security.web.header.HeaderWriterFilter@40dcbf7, org.springframework.web.filter.CorsFilter@73543048, org.springframework.security.web.authentication.logout.LogoutFilter@1ecbb787, com.actionvoca.taehyeong.authentication.filters.InitialAuthenticationFilter@82382d1, com.actionvoca.taehyeong.authentication.filters.JwtAuthenticationFilter@d8a2b1b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3ba8fbc8, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@113a89c5, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@1851f19f, org.springframework.security.web.access.ExceptionTranslationFilter@51806858, org.springframework.security.web.access.intercept.AuthorizationFilter@6c8f5262]
+2024-02-01T18:06:58.542+09:00  INFO 7387 --- [    Test worker] c.a.taehyeong.BackendApplicationTests    : Started BackendApplicationTests in 1.851 seconds (process running for 2.318)
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
