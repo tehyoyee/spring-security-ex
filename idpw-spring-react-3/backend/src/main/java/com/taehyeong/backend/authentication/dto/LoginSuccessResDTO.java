@@ -1,4 +1,4 @@
 package com.taehyeong.backend.authentication.dto;
 
-public record LoginSuccessResDTO() {
+public record LoginSuccessResDTO(Long id) {
 }
