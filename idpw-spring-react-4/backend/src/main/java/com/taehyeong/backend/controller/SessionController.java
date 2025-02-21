@@ -1,8 +1,10 @@
 package com.taehyeong.backend.controller;
 
+import com.taehyeong.backend.authentication.SecurityResponse;
 import com.taehyeong.backend.authentication.domain.CustomUserDetails;
 import com.taehyeong.backend.authentication.domain.LoginInfo;
 import com.taehyeong.backend.authentication.domain.SessionInfo;
+import com.taehyeong.backend.authentication.repository.SessionRepository;
 import com.taehyeong.backend.authentication.service.SessionService;
 import com.taehyeong.backend.response.ApiResponse;
 import com.taehyeong.backend.response.StatusCode;
@@ -12,9 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +28,7 @@ public class SessionController {
 
     private final SessionRegistry sessionRegistry;
     private final SessionService sessionService;
+    private final SessionRepository sessionRepository;
 
     @GetMapping("/left")
     public ApiResponse getSessionRemainingTime(HttpServletRequest request,
@@ -38,7 +39,7 @@ public class SessionController {
         if (session == null) {
             result.put("message", "No active session");
             result.put("remainingSec", -1);
-            return ApiResponse.failure(response, "인증되지 않은 세션입니다.", StatusCode.UNAUTHORIZED);
+            return ApiResponse.fail(response, "인증되지 않은 세션입니다.", StatusCode.UNAUTHORIZED);
         }
 
         int maxInactiveSec = session.getMaxInactiveInterval();
@@ -102,9 +103,37 @@ public class SessionController {
     @GetMapping("/inactive")
     public ApiResponse getInactiveSessions(HttpServletRequest request) {
 
-        List<SessionInfo> res = sessionService.getInactiveSessions();
+        List<SessionInfo> res = sessionRepository.getInactiveSessions().values().stream().toList();
         return ApiResponse.success(res, StatusCode.OK);
 
     }
 
+    @GetMapping("/active")
+    public ApiResponse getActiveSessions(HttpServletRequest request) {
+
+        List<SessionInfo> res = sessionRepository.getActiveSessions().values().stream().toList();
+        return ApiResponse.success(res, StatusCode.OK);
+
+    }
+
+    @DeleteMapping("{sessionId}")
+    public ApiResponse deleteSession(@PathVariable("sessionId") String sessionId,
+                                     HttpServletRequest request,
+                                     HttpServletResponse response) {
+
+        HttpSession session = request.getSession(false);
+        for (Object principal : sessionRegistry.getAllPrincipals()) {
+            // 각 Principal에 연결된 세션 정보
+            List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, true);
+
+            for (SessionInformation sessionInfo : sessions) {
+                if (sessionInfo.getSessionId().equals(session.getId())) {
+                    return ApiResponse.fail(response, StatusCode.SESSION_DISABLE_SELF);
+                }
+            }
+        }
+        sessionService.invalidateSession(sessionId);
+        return ApiResponse.success(sessionId, StatusCode.SESSION_INVALIDATED);
+
+    }
 }

@@ -4,7 +4,6 @@ import React from "react";
 // import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import store from "../redux/store";
 // import { LOGIN_FAILURE, LOGIN_SUCCESS } from "../redux/actionTypes";
 import ConnectedAccountTable from "../components/ConnectedAccountTable";
 // import SessionRemaining from "../components/SessionRemaining";
@@ -56,36 +55,25 @@ const Home = () => {
   const navigate = useNavigate();
   const { isLoggedIn, user, login, logout } = useAuth();  
   const handleClick = async () => {
-    console.log("현재 로그인 상태 = ", store.getState().auth.login)
+    // console.log("현재 로그인 상태 = ", store.getState().auth.login)
       // try {
-        const response = await axios.get("http://localhost:8080/sessions", {
+        const response = await axios.get("http://localhost:8080/members/check", {
             withCredentials: true
         });
         if (response.status === 200) {
             alert("test ok.");
             navigate("/"); // Redirect to home
         } else {
-          // console.log(response.data.status);
-            // alert(response.message);
         }
-    // } catch (e) {
-          // console.log(e.response.data.status);
           console.log("eerror")
-      // if (e) {
-      //   alert("세션이 만료되었습니다.");
-      // } else {
-      //   alert('로그인 해주세요.')  
-      // }
-      // dispatch({ type: LOGIN_FAILURE }); // 로그인 요청 시작
-    // }
   };
 
   return (
     <HomeContainer>
-      <Title>세션 로그인 리스트</Title>
+      {/* <Title>세션 로그인 리스트</Title> */}
       {/* <StompClientExample /> */}
 
-      <SessionTimer />
+      {/* <SessionTimer /> */}
       {/* <SessionRemaining/> */}
       <Button onClick={handleClick}>Get Started</Button>
       <ConnectedAccountTable/>

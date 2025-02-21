@@ -14,7 +14,6 @@ public class StompService {
     public void alertDuplicate(String username) {
         messagingTemplate.convertAndSendToUser(username, "/queue/reply", SessionStatus.DUPLICATE);
         System.out.println("alerted");
-
     }
 
 

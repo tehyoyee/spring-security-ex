@@ -6,5 +6,10 @@ public enum SessionStatus {
 
     DUPLICATE,
 
-    EXPIRED
+    EXPIRED,
+
+    LOGOUT,
+
+    KICKED,
+
 }

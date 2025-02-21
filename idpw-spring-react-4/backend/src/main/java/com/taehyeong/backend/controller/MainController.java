@@ -1,17 +1,22 @@
 package com.taehyeong.backend.controller;
 
 import com.taehyeong.backend.authentication.domain.CustomUserDetails;
+import com.taehyeong.backend.authentication.domain.SessionInfo;
 import com.taehyeong.backend.authentication.domain.SessionStatus;
+import com.taehyeong.backend.authentication.repository.SessionRepository;
 import com.taehyeong.backend.response.ApiResponse;
 import com.taehyeong.backend.response.StatusCode;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -27,7 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +43,7 @@ public class MainController {
     private final SimpMessagingTemplate messagingTemplate;
 //    private final Map<Long, String> SessionList = new HashMap<>();
     private final SessionRegistry sessionRegistry;
+    private final SessionRepository sessionRepository;
 
     @GetMapping
     public ResponseEntity<Map<String, String>> main() {
@@ -55,84 +63,65 @@ public class MainController {
     @MessageMapping("/session-checker")
     @SendToUser("/queue/reply")
     public String checkSession(String message, Principal principal, StompHeaderAccessor accessor) {
-        System.out.println("checkSession");
+        System.out.println("SessionChecker : checkSession");
+        System.out.println("SessionChecker : message = " + message);
+        if (message == null || message.equals(false)) {
+            return SessionStatus.LOGOUT.toString();
+        }
+        for (Map.Entry<String, SessionInfo> stringSessionInfoEntry : sessionRepository.getInactiveSessions().entrySet()) {
+            System.out.println("SessionChecker : stringSessionInfoEntry = " + stringSessionInfoEntry);
+            if (stringSessionInfoEntry.getValue().getStompChannel().equals(message)) {
+                System.out.println("/topic/" + message + "메시지 보냄");
+                messagingTemplate.convertAndSend("/topic/" + message, stringSessionInfoEntry.getValue().getStatus().toString());
+            }
+        }
         if (principal == null) {
-            System.out.println("Error: Principal is null");
-            System.out.println("asdfasdf");
+            System.out.println("SessionChecker : Error: Principal is null");
+            System.out.println("SessionChecker : asdfasdf");
             return SessionStatus.EXPIRED.toString();
         }
         String sessionId = (String) accessor.getSessionAttributes().get("HTTP.SESSION.ID");
         if (sessionId == null) {
-            System.out.println("sessionId " + sessionId + "died");
-            System.out.println("asdfasdfasdf");
+            System.out.println("SessionChecker : sessionId is null");
             return SessionStatus.EXPIRED.toString();
         }
+        System.out.println("SessionChecker : sessionId = " + sessionId);
         SessionInformation sessionInformation = sessionRegistry.getSessionInformation(sessionId);
         if (sessionInformation == null) {
             messagingTemplate.convertAndSendToUser(sessionId, "/queue/reply",
                     "Direct reply to " + sessionId + ": " + message);
-            System.out.println("asdfasdfasdfasdf");
+            System.out.println("세션");
             return SessionStatus.EXPIRED.toString();
         }
         if (sessionInformation.isExpired()) {
-            System.out.println("asdfasdfasdfasdfasdf");
+            System.out.println("SessionChecker : sessionInformation is expired");
             return SessionStatus.EXPIRED.toString();
         }
-        System.out.println("meesssage sendedededr");
+        System.out.println("SessionChecker : checkSession ended");
         return SessionStatus.ALIVE.toString();
 
     }
 
     @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public String processMessage(String message, StompHeaderAccessor stompHeaderAccessor) throws Exception {
+//    @SendTo("/topic/messages")
+    public void processMessage(String message, StompHeaderAccessor stompHeaderAccessor) throws Exception {
+        if (message == null || message.length() != 32) {
+            messagingTemplate.convertAndSend("/topic/" + message, SessionStatus.LOGOUT.toString());
+            return ;
+        }
+        Map<String, SessionInfo> inactiveSessionList = sessionRepository.getInactiveSessions();
+        for (SessionInfo sessionInfo : inactiveSessionList.values()) {
+            if (sessionInfo.getStompChannel() == null) {
+                continue;
+            }
+            if (sessionInfo.getStompChannel().equals(message)) {
+                SessionStatus sessionStatus = sessionInfo.getStatus();
+                messagingTemplate.convertAndSend("/topic/" + message, sessionStatus.toString());
+                return;
+            }
+        }
+        messagingTemplate.convertAndSend("/topic/" + message, SessionStatus.ALIVE.toString());
 
-        System.out.println(stompHeaderAccessor.getSessionAttributes().get("HTTP.SESSION.ID"));
-
-//        for (Map.Entry<String, Object> x : stompHeaderAccessor.getSessionAttributes().entrySet()) {
-//            System.out.println(x);
-//        }
-//        System.out.println("stompHeaderAccessor = " + stompHeaderAccessor.getSessionAttributes());
-//        System.out.println(stompHeaderAccessor.getSessionAttributes().toString());
-//        System.out.println(stompHeaderAccessor.getSessionId());
-//        System.out.println(stompHeaderAccessor.getMessage());
-//        System.out.println(stompHeaderAccessor.getDestination());
-//        System.out.println(stompHeaderAccessor.getSessionId());
-//        System.out.println(stompHeaderAccessor.getSessionAttributes());
-//        System.out.println("message = " + message);
-//        System.out.println("stompHeaderAccessor = " + stompHeaderAccessor.getFirstNativeHeader("JSESSIONID"));
-
-//        HTTP.SESSION.ID=753D5B470B26B94419F03B1CC0FFC36C
-//                USERNAME=asdf
-//        ID=1
-//        SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]
-//        stompHeaderAccessor = {HTTP.SESSION.ID=753D5B470B26B94419F03B1CC0FFC36C, USERNAME=asdf, ID=1, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]}
-//        {HTTP.SESSION.ID=753D5B470B26B94419F03B1CC0FFC36C, USERNAME=asdf, ID=1, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]}
-//        jzhrhbe5
-//        null
-//                /app/chat
-//        jzhrhbe5
-//        {HTTP.SESSION.ID=753D5B470B26B94419F03B1CC0FFC36C, USERNAME=asdf, ID=1, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]}
-
-//        HTTP.SESSION.ID=01751A78C6F83BBD16AD7DE4FD8D82E1
-//                USERNAME=asdf
-//        ID=1
-//        SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]
-//        stompHeaderAccessor = {HTTP.SESSION.ID=01751A78C6F83BBD16AD7DE4FD8D82E1, USERNAME=asdf, ID=1, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]}
-//        {HTTP.SESSION.ID=01751A78C6F83BBD16AD7DE4FD8D82E1, USERNAME=asdf, ID=1, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]}
-//        2hyoi0yk
-//        null
-//                /app/chat
-//        2hyoi0yk
-//        {HTTP.SESSION.ID=01751A78C6F83BBD16AD7DE4FD8D82E1, USERNAME=asdf, ID=1, SPRING_SECURITY_CONTEXT=SecurityContextImpl [Authentication=UsernamePasswordAuthenticationToken [Principal=com.taehyeong.backend.authentication.domain.CustomUserDetails@1, Credentials=[PROTECTED], Authenticated=true, Details=null, Granted Authorities=[MENU1_WRITE, MENU1_READ]]]}
-//        message = SESSION_CHECKER
-//        stompHeaderAccessor = null
-//        message = SESSION_CHECKER
-
-
-        // 간단하게 서버가 받은 메시지 앞에 접두사를 붙여서 반환
-        System.out.println("message = " + message);
-        return "Server Received: " + message;
     }
 
 //    @MessageMapping("/chat.sendMessage")

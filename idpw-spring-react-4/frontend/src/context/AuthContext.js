@@ -8,35 +8,59 @@ export const AuthProvider = ({ children }) => {
   // 로그인 상태와 사용자 정보를 관리하는 상태값
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [id, setId] = useState(0);
+  const [stompChannel, setStompChannel] = useState(false);
+  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    const savedLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (savedLoggedIn === true) {
-        setIsLoggedIn(savedLoggedIn);
-        setId(parseInt(localStorage.getItem('id'), 10));
+    // if (isLoggedIn) {
+      setInitialized(false)
+      const savedLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      console.log('savedLoggedIn 등록 ' , savedLoggedIn)
+      if (savedLoggedIn === false) {
+        return;
+      }
+      console.log('로컬스토리지 불러러러오기')
+      if (savedLoggedIn) {
+        console.log("AuthContext 로그인 여부 저장", savedLoggedIn)
+        console.log("저장저장저장젖장", localStorage.getItem('stompChannel'))
+          setIsLoggedIn(savedLoggedIn);
+          setId(parseInt(localStorage.getItem('id'), 10));
+          setStompChannel(localStorage.getItem('stompChannel'));
+      }
+      setInitialized(true)
     // }
-    }
   }, []);
-  // 로그인 함수 (예: API 호출 후 사용자 정보 저장)
-  const login = (id) => {
+
+  const login = (id, stompChannel) => {
+    setInitialized(false)
+    console.log(stompChannel)
     setIsLoggedIn(true);
     setId(id);
+    setStompChannel(stompChannel)
     localStorage.setItem('id', id);
     localStorage.setItem('isLoggedIn', true); // 로그인 상태 저장
+    localStorage.setItem('stompChannel', stompChannel);
+    setInitialized(true)
   };
 
   // 로그아웃 함수
   const logout = () => {
     setIsLoggedIn(false);
     setId(0)
+    setStompChannel("");
     localStorage.removeItem('id');
-    localStorage.removeItem('isLoggedIn'); // 저장된 로그인 상태 제거
+    localStorage.removeItem('isLoggedIn');
+    // localStorage.removeItem('stompChannel');
+    // setInitialized(false)
   };
 
   const value = {
     isLoggedIn,
+    stompChannel,
     login,
     logout,
+    setStompChannel,
+    initialized
   };
 
   return (

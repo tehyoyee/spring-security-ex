@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 // import { useDispatch, useSelector } from "react-redux";
 // import { LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS } from "../redux/actionTypes";
-import store from "../redux/store";
 // import { login } from "../redux/authSlice";
 import SessionChecker from "../components/SessionChecker";
 import { useAuth } from "../context/AuthContext";
@@ -67,7 +66,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { isLoggedIn, user, login, logout } = useAuth();
+  const { isLoggedIn, stompChannel, login, logout } = useAuth();
 
   // const dispatch = useDispatch();
   // const auth = useSelector((state) => state.auth);
@@ -91,27 +90,33 @@ const Login = () => {
         method: 'POST',
         data: JSON.stringify(formData),
         headers: {
-            'Content-Type': 'application/json', // Content-Type 헤더 설정
+            'Content-Type': 'application/json',
         },
         withCredentials: true,
       });
       if (response.status === 200) {
-        console.log('로그인 성공', response.data.data.id)
+        console.log(response.data)
+        console.log('로그인 성공', response.data.data.id, response.data.data.stompChannel)
         // dispatch(login());
-        login(response.data.data.id);
-        
+        login(response.data.data.id, response.data.data.stompChannel);
+        if (response.data.status === 400) {
+          alert(response.data.data)
+        }
 
         // SessionChecker.disconnect();
         // SessionChecker.reconnect();
+      } else {
+        alert('로그인이 필요합니다.');
+        setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
       }
     } catch (err) {
+      if (err.status === 400) {
+        alert(err.response.data.message)
+      }
         // if (store.getState().auth.login === 'LOGIN_SUCCESS') {
         //     alert('세션이 만료되었습니다. 다시 로그인해주세요.');
         // }
 
-            alert('로그인이 필요합니다.');
-            console.log("store STATE " + store.getState().auth.login);
-      setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
     }
   };
 

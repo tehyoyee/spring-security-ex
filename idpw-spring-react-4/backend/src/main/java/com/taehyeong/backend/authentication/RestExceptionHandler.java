@@ -19,9 +19,9 @@ public class RestExceptionHandler {
         System.out.println("handleSignatureException");
         Exception e = (Exception) request.getAttribute("exception");
         if (e == null) {
-            return ApiResponse.failure(response, "인증에 실패하였습니다.", StatusCode.UNAUTHORIZED);
+            return ApiResponse.fail(response, "인증에 실패하였습니다. exception handler", StatusCode.UNAUTHORIZED);
         }
-            return ApiResponse.failure(response, e.getMessage(), StatusCode.UNAUTHORIZED);
+            return ApiResponse.fail(response, e.getMessage(), StatusCode.UNAUTHORIZED);
 
     }
 

@@ -2,18 +2,22 @@ package com.taehyeong.backend.authentication.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Builder
 @Getter
+@Setter
 public class SessionInfo {
 
     private Long userId;
 
+    private String sessionId;
+
     private String username;
 
-    private String sessionId;
+    private String stompChannel;
 
     private SessionStatus status;
 

@@ -34,6 +34,7 @@ public class SecurityConfig {
     private final AuthenticationProviderImpl authenticationProvider;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomSessionInformationExpiredStrategy customSessionInformationExpiredStrategy;
+//    private final LogoutAuthenticationFilter logoutAuthenticationFilter;
 
     @Bean
     public SessionRegistry sessionRegistry() {
@@ -57,10 +58,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> {
                     auth
-                            .requestMatchers("/ws/**","/ws", "/members", "/login", "/members/login", "/sessions", "/members/logout").permitAll()
+                            .requestMatchers("/ws/**","/ws", "/members", "/members/login").permitAll()
                             .anyRequest().authenticated();
                 })
                 .sessionManagement(session -> session
+                        .sessionFixation().newSession()
                         .maximumSessions(1) // 최대 세션 수
                         .maxSessionsPreventsLogin(false)
                         .sessionRegistry(sessionRegistry)
@@ -75,7 +77,9 @@ public class SecurityConfig {
                 .addFilterBefore(
                         sessionAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
-                );
+                )
+//                .addFilterAfter(logoutAuthenticationFilter, SessionAuthenticationFilter.class);
+                ;
                 return http.build();
     }
 
@@ -90,7 +94,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", configuration);
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Authorization-Refresh", "Set-Cookie"));
+        configuration.setExposedHeaders(Arrays.asList("Set-Cookie"));
 
         return urlBasedCorsConfigurationSource;
 

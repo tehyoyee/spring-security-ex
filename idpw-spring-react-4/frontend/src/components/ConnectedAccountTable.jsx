@@ -10,11 +10,26 @@ const Table = styled.table`
   border-collapse: collapse;
   margin: 20px auto;
   font-family: Arial, sans-serif;
+  /* display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; */
 `;
 
 const TableHead = styled.thead`
   background-color: #f2f2f2;
 `;
+
+const MarginHorizon = styled.div`
+  margin-top: 50px;
+  
+`
+
+const TableTitle = styled.div`
+  font-size: 30px;
+  text-align: center;
+  font-weight: 1000;
+`
 
 const TableRow = styled.tr`
   &:nth-child(even) {
@@ -39,6 +54,7 @@ function ConnectedAccountTable() {
   // const [messages, setMessages] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [sessionHistory, setSessionHistory] = useState([]);
+  const [sessionActive, setSessionActive] = useState([]);
   const navigate = useNavigate();
   const { isLoggedIn, user, login, logout } = useAuth();  
   const hasRedirected = useRef(false);
@@ -46,6 +62,23 @@ function ConnectedAccountTable() {
 // 클린업: 컴포넌트 언마운트 시 STOMP 클라이언트 비활성화
 
   // 마운트 시점에 API 호출
+  
+      const invalidateSession = async (sessionId) => {
+        axios
+          .delete(`http://localhost:8080/sessions/${ sessionId }`, {
+            withCredentials: true
+          })
+          .then((response) => {
+            if (response.status === 200) {
+              console.log(response.data.message);
+              alert(response.data.message);
+            }
+          })
+          .catch((error) => {
+            navigate('/login')
+          });
+  
+      }
   useEffect(() => {
     let intervalId;
 
@@ -81,6 +114,16 @@ function ConnectedAccountTable() {
       .catch((error) => {
         // console.error('API 호출 중 오류 발생:', error);
       });
+      axios
+      .get('http://localhost:8080/sessions/active', {
+        withCredentials: true
+      })
+      .then((response) => {
+        setSessionActive(response.data.data); // 데이터 구조에 맞춰 세팅
+      })
+      .catch((error) => {
+        // console.error('API 호출 중 오류 발생:', error);
+      });
     };
 
     fetchData();
@@ -92,6 +135,8 @@ function ConnectedAccountTable() {
 
   return (
     <>
+    <MarginHorizon/>
+          <TableTitle> 스프링 서버가 관리하는 세션 </TableTitle>
       <Table>
         <TableHead>
           <TableRow>
@@ -122,26 +167,67 @@ function ConnectedAccountTable() {
           ))}
         </tbody>
       </Table>
-      
+      <MarginHorizon/>
+
+      <TableTitle> Active Sessions </TableTitle>
+
       <Table>
         <TableHead>
           <TableRow>
             <TableHeader>ID</TableHeader>
             <TableHeader>Username</TableHeader>
             <TableHeader>Session ID</TableHeader>
+            <TableHeader>Stomp Channel</TableHeader>
             <TableHeader>상태</TableHeader>
+            <TableHeader>시작 시간</TableHeader>
+            <TableHeader>세션 종료</TableHeader>
+          </TableRow>
+        </TableHead>
+
+        <tbody>
+          { sessionActive[0] && sessionActive.map((session, idx) => (
+            <TableRow key={ idx }>
+              <TableData>{session.userId}</TableData>
+              <TableData>{session.username}</TableData>
+              <TableData>{session.sessionId}</TableData>
+              <TableData>{session.stompChannel}</TableData>
+              <TableData>{session.status}</TableData>
+              <TableData>{session.startTime}</TableData>
+              <TableData><button onClick={ () => invalidateSession(session.sessionId) }>세션 종료</button></TableData>
+            </TableRow>
+          ))}
+        </tbody>
+      </Table>
+    <MarginHorizon/>
+      
+
+      <TableTitle> Invalid Sessions </TableTitle>
+
+      <Table>
+        
+        <TableHead>
+          <TableRow>
+            <TableHeader>ID</TableHeader>
+            <TableHeader>Username</TableHeader>
+            <TableHeader>Session ID</TableHeader>
+            <TableHeader>Stomp Channel</TableHeader>
+            <TableHeader>상태</TableHeader>
+            <TableHeader>시작 시간</TableHeader>
             <TableHeader>끝난 시간</TableHeader>
+
             
           </TableRow>
         </TableHead>
 
         <tbody>
-          { sessionHistory && sessionHistory.map((session, idx) => (
+          { sessionHistory[0] && sessionHistory.map((session, idx) => (
             <TableRow key={ idx }>
-              <TableData>{session.id}</TableData>
+              <TableData>{session.userId}</TableData>
               <TableData>{session.username}</TableData>
               <TableData>{session.sessionId}</TableData>
+              <TableData>{session.stompChannel}</TableData>
               <TableData>{session.status}</TableData>
+              <TableData>{session.startTime}</TableData>
               <TableData>{session.endTime}</TableData>
             </TableRow>
           ))}

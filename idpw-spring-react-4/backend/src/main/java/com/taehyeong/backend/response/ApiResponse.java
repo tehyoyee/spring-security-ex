@@ -25,7 +25,7 @@ public class ApiResponse<T> {
     }
 
     // 실패 응답을 위한 정적 메서드
-    public static <T> ApiResponse<T> failure(HttpServletResponse response, String message, StatusCode statusCode) {
+    public static <T> ApiResponse<T> fail(HttpServletResponse response, String message, StatusCode statusCode) {
         response.setStatus(statusCode.getCode());
         return ApiResponse.<T>builder()
                 .success(false)
@@ -33,7 +33,14 @@ public class ApiResponse<T> {
                 .data(null)
                 .build();
     }
-
+    public static <T> ApiResponse<T> fail(HttpServletResponse response, StatusCode statusCode) {
+        response.setStatus(statusCode.getCode());
+        return ApiResponse.<T>builder()
+                .success(false)
+                .message(statusCode.getMessage())
+                .data(null)
+                .build();
+    }
     public static <T> ApiResponse<T> success(T data, StatusCode statusCode) {
         return ApiResponse.<T>builder()
                 .success(true)
