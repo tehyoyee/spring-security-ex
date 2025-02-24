@@ -27,7 +27,7 @@ function SessionChecker() {
         console.log('sessionChecker : clearInterval');
         clearInterval(intervalId);
       }
-    }, 1000);
+    }, 500);
     return () => clearInterval(intervalId);
   }, [client, connected]);
   
@@ -38,15 +38,6 @@ function SessionChecker() {
       console.log('웹소켓 연결 거절') 
       return;
     }
-    
-    // if (isLoggedIn === false) {
-    //   console.log('로그인 안되있어서 소켓 연결 안함');
-    //   if (connected) {
-    //     console.log('디스커넥트')
-    //     disconnect();
-    //   }
-    //   return;
-    // }
     console.log('웹소켓 연결 승인')
     const stompClient = new Client({
       // brokerURL, SockJS 2개 중 SockJS 
@@ -80,12 +71,13 @@ function SessionChecker() {
               navigate('/login');
               alert("중복로그인으로 로그아웃 처리합니다.");
               break;
-            case 'NOT_LOGGED_IN':
-              console.log('STOMP CHANNEL : NOT_LOGGED_IN')
+            case 'LOGOUT':
+              console.log('STOMP CHANNEL : LOGOUT')
               logout()
               setStompChannel("");
               localStorage.removeItem('stompChannel')
               navigate('/login');
+              alert("로그아웃 되었습니다.");
               break;
             case 'KICKED':
               console.log('STOMP CHANNEL : KICKED')

@@ -1,11 +1,7 @@
-// src/pages/Login.js
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// import { useDispatch, useSelector } from "react-redux";
-// import { LOGIN_FAILURE, LOGIN_REQUEST, LOGIN_SUCCESS } from "../redux/actionTypes";
-// import { login } from "../redux/authSlice";
 import SessionChecker from "../components/SessionChecker";
 import { useAuth } from "../context/AuthContext";
 
@@ -68,9 +64,6 @@ const Login = () => {
   const navigate = useNavigate();
   const { isLoggedIn, stompChannel, login, logout } = useAuth();
 
-  // const dispatch = useDispatch();
-  // const auth = useSelector((state) => state.auth);
-
   const handleLogin = () => {
     // 예시 사용자 정보
   };
@@ -81,7 +74,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // dispatch(request);
     
     try {
       setError(""); // Clear previous errors
@@ -95,28 +87,15 @@ const Login = () => {
         withCredentials: true,
       });
       if (response.status === 200) {
-        console.log(response.data)
-        console.log('로그인 성공', response.data.data.id, response.data.data.stompChannel)
-        // dispatch(login());
         login(response.data.data.id, response.data.data.stompChannel);
-        if (response.data.status === 400) {
-          alert(response.data.data)
+        if (response.data.errorCode === 2) {
         }
-
-        // SessionChecker.disconnect();
-        // SessionChecker.reconnect();
       } else {
         alert('로그인이 필요합니다.');
         setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
       }
     } catch (err) {
-      if (err.status === 400) {
-        alert(err.response.data.message)
-      }
-        // if (store.getState().auth.login === 'LOGIN_SUCCESS') {
-        //     alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-        // }
-
+      alert(err.response.data.message)
     }
   };
 

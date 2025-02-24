@@ -32,8 +32,8 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
         System.out.println("SessionAuthenticationFilter.doFilterInternal START");
+
         filterChain.doFilter(request, response);
-//        HttpSession session = request.getSession(false);
 //        if (session == null) {
 //            String sessionId = "";
 //            if (request.getCookies() != null) {

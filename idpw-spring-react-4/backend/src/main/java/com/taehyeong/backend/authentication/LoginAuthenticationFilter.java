@@ -20,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -40,15 +41,16 @@ public class LoginAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationProviderImpl authenticationProvider;
     private final SessionRepository sessionRepository;
     private final SessionRegistry sessionRegistry;
+    private final HttpSession httpSession;
     private final HttpSession session;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        for (Object principal : sessionRegistry.getAllPrincipals()) {
-            // 각 Principal에 연결된 세션 정보
-            List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, true);
+        HttpSession session = request.getSession(true);
 
+        for (Object principal : sessionRegistry.getAllPrincipals()) {
+            List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, true);
             for (SessionInformation sessionInfo : sessions) {
                 if (sessionInfo.getSessionId().equals(session.getId())) {
                     SecurityResponse.fail(response, StatusCode.SESSION_ALREADY_LOGGEDIN);
@@ -56,68 +58,47 @@ public class LoginAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         }
-
-
-
-
-
-        System.out.println("============ Login Filter ==============");
-//        System.out.println("SecurityContextHolder.getContext().getAuthentication().getPrincipal() = " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         ConcurrentHashMap<String, SessionInfo> activeSessionList = sessionRepository.getActiveSessions();
         ConcurrentHashMap<String, SessionInfo> inactiveSessionList = sessionRepository.getInactiveSessions();
-        if (activeSessionList.isEmpty()) {}
-        String body = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        System.out.println("============ Login Filter ==============2");
-
-        System.out.println("session.getId() = " + session.getId());
-
-        if (session.getAttribute("ID") != null) {
-            if (activeSessionList.get(String.valueOf(session.getAttribute("ID"))) != null) {
-                System.out.println("이미 로그인 상태인 세션은 요청 무시");
-                SecurityResponse.success(response, "이미 로그인 되어있습니다.");
-                return;
-            }
+        // 비활성화된 세션이라면 세션 재생성
+        if (inactiveSessionList.containsKey(session.getId())) {
+            request.getSession().invalidate();
+            session = request.getSession(true);
         }
-        System.out.println("============ Login Filter ==============3");
-        JSONObject json = new JSONObject(body);
-        String username = json.getString("username");
-        String password = json.getString("password");
-        MemberLoginDTO memberLoginDTO = new MemberLoginDTO(username, password);
-        Authentication authentication = authenticationProvider.authenticate(
-            new UsernamePasswordAuthenticationToken(memberLoginDTO.username(), memberLoginDTO.password())
-        );
-        System.out.println("============ Login Filter ==============4");
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        session.setMaxInactiveInterval((int)userDetails.getExpireTime().getSeconds());
-        session.setAttribute("ID", userDetails.getId());
-        session.setAttribute("USERNAME", userDetails.getUsername());
-//        session.setAttribute("EXPIRED", false);
-        System.out.println("session.getAttribute(\"ID\") = " + session.getAttribute("ID"));
-        System.out.println("session.getAttribute(\"USERNAME\") = " + session.getAttribute("USERNAME"));
-//        String stompChannel = sessionRepository.addStompChannel(session.getId());
-//        System.out.println("stompChannel = " + stompChannel);
-        System.out.println("sessionId = " + session.getId());
 
+        // Authentication 인증
+        try {
+            String body = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+            JSONObject json = new JSONObject(body);
+            String username = json.getString("username");
+            String password = json.getString("password");
+            MemberLoginDTO memberLoginDTO = new MemberLoginDTO(username, password);
+            Authentication authentication = authenticationProvider.authenticate(
+                    new UsernamePasswordAuthenticationToken(memberLoginDTO.username(), memberLoginDTO.password())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            session.setMaxInactiveInterval((int)userDetails.getExpireTime().getSeconds());
+            session.setAttribute("ID", userDetails.getId());
+            session.setAttribute("USERNAME", userDetails.getUsername());
 
-        System.out.println("============ Login Filter ==============5");
-
-
-//        List<String> duplicatedSessionList = new ArrayList<>();
-        // 기존 로그인된 애 DUPLICATE 상태로 바꿈.
-        for (SessionInfo sessionInfo : activeSessionList.values()) {
-            System.out.println(sessionInfo.getSessionId());
-            if (sessionInfo.getUserId().equals(userDetails.getId())) {
-                sessionInfo.setStatus(SessionStatus.DUPLICATE);
-                sessionInfo.setEndTime(LocalDateTime.now());
-                sessionInfo.setExpired(true);
-                inactiveSessionList.put(sessionInfo.getSessionId(), sessionInfo);
-                activeSessionList.remove(sessionInfo.getSessionId());
-//                duplicatedSessionList.add(sessionInfo.getSessionId());
+            for (SessionInfo sessionInfo : activeSessionList.values()) {
+                if (sessionInfo.getUserId().equals(userDetails.getId())) {
+                    sessionInfo.setStatus(SessionStatus.DUPLICATE);
+                    sessionInfo.setEndTime(LocalDateTime.now());
+                    sessionInfo.setExpired(true);
+                    inactiveSessionList.put(sessionInfo.getSessionId(), sessionInfo);
+                    activeSessionList.remove(sessionInfo.getSessionId());
+                }
             }
+            filterChain.doFilter(request, response);
+        } catch (UsernameNotFoundException e) {
+            e.printStackTrace();
+            SecurityResponse.fail(response, StatusCode.LOGIN_FAILED);
+        } catch (Exception e) {
+            e.printStackTrace();
+            SecurityResponse.fail(response, StatusCode.LOGIN_FAILED_UNCATCHED);
         }
-        filterChain.doFilter(request, response);
-
     }
 
     @Override

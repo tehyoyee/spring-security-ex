@@ -88,26 +88,9 @@ public class MemberController {
     @PostMapping("/login")
     public ApiResponse login(HttpServletRequest request, HttpServletResponse response) {
 
-//        boolean isExistInSessionRegistry = false;
-//        for (Object principal : sessionRegistry.getAllPrincipals()) {
-//            // 각 Principal에 연결된 세션 정보
-//            List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, true);
-//
-//            for (SessionInformation sessionInfo : sessions) {
-//                if (sessionInfo.getSessionId().equals(request.getSession().getId())) {
-//                    isExistInSessionRegistry = true;
-//                    break;
-//                }
-//            }
-//            if (isExistInSessionRegistry) {
-//                break;
-//            }
-//        }
-//        if (!isExistInSessionRegistry) {
-//            return ApiResponse.fail(response, StatusCode.LOGIN_FAILED);
-//        }
         String newStompChannel = sessionRepository.generateStompChannel();
         HttpSession session = request.getSession();
+//        if (session.)
         System.out.println("session.getAttribute(\"ID\") = " + session.getAttribute("ID"));
         System.out.println("session.getAttribute(\"USERNAME\") = " + session.getAttribute("USERNAME"));
 

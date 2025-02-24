@@ -41,7 +41,6 @@ import java.util.Set;
 public class MainController {
 
     private final SimpMessagingTemplate messagingTemplate;
-//    private final Map<Long, String> SessionList = new HashMap<>();
     private final SessionRegistry sessionRegistry;
     private final SessionRepository sessionRepository;
 
@@ -103,7 +102,6 @@ public class MainController {
     }
 
     @MessageMapping("/chat")
-//    @SendTo("/topic/messages")
     public void processMessage(String message, StompHeaderAccessor stompHeaderAccessor) throws Exception {
         if (message == null || message.length() != 32) {
             messagingTemplate.convertAndSend("/topic/" + message, SessionStatus.LOGOUT.toString());
@@ -120,36 +118,17 @@ public class MainController {
                 return;
             }
         }
-        messagingTemplate.convertAndSend("/topic/" + message, SessionStatus.ALIVE.toString());
-
+        Map<String, SessionInfo> activeSessionList = sessionRepository.getActiveSessions();
+        for (SessionInfo sessionInfo : activeSessionList.values()) {
+            if (sessionInfo.getStompChannel() == null) {
+                continue;
+            }
+            if (sessionInfo.getStompChannel().equals(message)) {
+                messagingTemplate.convertAndSend("/topic/" + message, SessionStatus.ALIVE.toString());
+                return;
+            }
+        }
+        messagingTemplate.convertAndSend("/topic/" + message, SessionStatus.LOGOUT.toString());
     }
-
-//    @MessageMapping("/chat.sendMessage")
-//    @SendTo("/topic/public") // "/topic/public"을 구독 중인 모든 클라이언트에게 메시지를 보냄
-//    public ApiResponse sendMessage() {
-//        System.out.println("sendMessage");
-////        HttpSession session = request.getSession(false);
-//        Map<String, Object> result = new HashMap<>();
-//
-//        if (session == null) {
-//            result.put("message", "No active session");
-//            result.put("remainingSec", -1);
-//            return ApiResponse.failure("인증되지 않은 세션입니다.", StatusCode.UNAUTHORIZED);
-//        }
-//
-//        int maxInactiveSec = session.getMaxInactiveInterval();
-//        long lastAccessedMillis = session.getLastAccessedTime();
-//        long nowMillis = System.currentTimeMillis();
-//
-//        long elapsedSec = (nowMillis - lastAccessedMillis) / 1000;
-//        long remainingSec = maxInactiveSec - elapsedSec;
-//
-//        if (remainingSec < 0) remainingSec = 0; // 이미 만료됐을 수도 있음
-//
-//        result.put("message", "Active session");
-//        result.put("maxInactiveSec", maxInactiveSec);
-//        result.put("remainingSec", remainingSec);
-//        return ApiResponse.success(result, StatusCode.OK);
-//    }
 
 }

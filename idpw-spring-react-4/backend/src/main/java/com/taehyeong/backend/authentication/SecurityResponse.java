@@ -12,7 +12,7 @@ public class SecurityResponse {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(statusCode.getCode());
         PrintWriter writer = response.getWriter();
-        writer.write("{\"success\": \"false\", \"message\": \" 시큐리티 리스판스 페일 + "  + statusCode.getMessage() + "\"}");
+        writer.write("{\"success\": \"false\", \"message\": \"시큐리티 리스판스 페일 + "  + statusCode.getMessage() + "\", \"errorCode\":"+statusCode.getErrorCode()+"    }");
         writer.flush();
         writer.close();
     }

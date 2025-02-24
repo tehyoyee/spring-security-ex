@@ -31,6 +31,7 @@ public class SessionService {
             for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(principal, false)) {
                 if (sessionInformation.getSessionId().equals(sessionId)) {
                     sessionInformation.expireNow();
+
                     sessionRegistry.removeSessionInformation(sessionId);
 
                     SessionInfo sessionInfo = activeSessionList.get(sessionInformation.getSessionId());

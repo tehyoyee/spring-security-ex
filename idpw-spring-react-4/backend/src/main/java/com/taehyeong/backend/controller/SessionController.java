@@ -122,15 +122,8 @@ public class SessionController {
                                      HttpServletResponse response) {
 
         HttpSession session = request.getSession(false);
-        for (Object principal : sessionRegistry.getAllPrincipals()) {
-            // 각 Principal에 연결된 세션 정보
-            List<SessionInformation> sessions = sessionRegistry.getAllSessions(principal, true);
-
-            for (SessionInformation sessionInfo : sessions) {
-                if (sessionInfo.getSessionId().equals(session.getId())) {
-                    return ApiResponse.fail(response, StatusCode.SESSION_DISABLE_SELF);
-                }
-            }
+        if (session.getId().equals(sessionId)) {
+            return ApiResponse.fail(response, StatusCode.SESSION_DISABLE_SELF);
         }
         sessionService.invalidateSession(sessionId);
         return ApiResponse.success(sessionId, StatusCode.SESSION_INVALIDATED);

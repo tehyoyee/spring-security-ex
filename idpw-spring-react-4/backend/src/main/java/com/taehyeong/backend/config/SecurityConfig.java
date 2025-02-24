@@ -63,6 +63,7 @@ public class SecurityConfig {
                 })
                 .sessionManagement(session -> session
                         .sessionFixation().newSession()
+//                        .sessionFixation().migrateSession()
                         .maximumSessions(1) // 최대 세션 수
                         .maxSessionsPreventsLogin(false)
                         .sessionRegistry(sessionRegistry)

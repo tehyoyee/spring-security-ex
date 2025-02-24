@@ -60,10 +60,11 @@ function ConnectedAccountTable() {
   const hasRedirected = useRef(false);
 
 // 클린업: 컴포넌트 언마운트 시 STOMP 클라이언트 비활성화
-
+  console.log('user', user)
   // 마운트 시점에 API 호출
   
       const invalidateSession = async (sessionId) => {
+        
         axios
           .delete(`http://localhost:8080/sessions/${ sessionId }`, {
             withCredentials: true
@@ -75,7 +76,11 @@ function ConnectedAccountTable() {
             }
           })
           .catch((error) => {
-            navigate('/login')
+            if (error.status === 400) {
+              alert(error.response.data.message)
+            }
+            console.log('error', error)
+            // navigate('/login')
           });
   
       }

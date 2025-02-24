@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class ApiResponse<T> {
     private boolean success; // 요청의 성공 여부
     private String message;  // 요청에 대한 메시지
+    private int errorCode;
     private T data;          // 반환할 데이터
 
     // 성공 응답을 위한 정적 메서드
@@ -31,6 +32,7 @@ public class ApiResponse<T> {
                 .success(false)
                 .message(message)
                 .data(null)
+                .errorCode(statusCode.getErrorCode())
                 .build();
     }
     public static <T> ApiResponse<T> fail(HttpServletResponse response, StatusCode statusCode) {
@@ -38,6 +40,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(false)
                 .message(statusCode.getMessage())
+                .errorCode(statusCode.getErrorCode())
                 .data(null)
                 .build();
     }
