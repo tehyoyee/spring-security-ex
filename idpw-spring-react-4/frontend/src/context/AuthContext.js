@@ -15,14 +15,10 @@ export const AuthProvider = ({ children }) => {
     // if (isLoggedIn) {
       setInitialized(false)
       const savedLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-      console.log('savedLoggedIn 등록 ' , savedLoggedIn)
       if (savedLoggedIn === false) {
         return;
       }
-      console.log('로컬스토리지 불러러러오기')
       if (savedLoggedIn) {
-        console.log("AuthContext 로그인 여부 저장", savedLoggedIn)
-        console.log("저장저장저장젖장", localStorage.getItem('stompChannel'))
           setIsLoggedIn(savedLoggedIn);
           setId(parseInt(localStorage.getItem('id'), 10));
           setStompChannel(localStorage.getItem('stompChannel'));
@@ -33,7 +29,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = (id, stompChannel) => {
     setInitialized(false)
-    console.log(stompChannel)
     setIsLoggedIn(true);
     setId(id);
     setStompChannel(stompChannel)

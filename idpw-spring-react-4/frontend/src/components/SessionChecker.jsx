@@ -22,9 +22,9 @@ function SessionChecker() {
           destination: '/app/chat',
           body: `${ stompChannel }`
         });
-        console.log('sessionChecker : stompChannel ', stompChannel, 'isLoggendIn ', isLoggedIn);
+        // console.log('sessionChecker : stompChannel ', stompChannel, 'isLoggendIn ', isLoggedIn);
       } else {
-        console.log('sessionChecker : clearInterval');
+        // console.log('sessionChecker : clearInterval');
         clearInterval(intervalId);
       }
     }, 500);
@@ -33,30 +33,30 @@ function SessionChecker() {
   
 
   useEffect(() => {
-    console.log('웹소켓 연결 시도')
+    // console.log('웹소켓 연결 시도')
     if (!initialized) {
-      console.log('웹소켓 연결 거절') 
+      // console.log('웹소켓 연결 거절') 
       return;
     }
-    console.log('웹소켓 연결 승인')
+    // console.log('웹소켓 연결 승인')
     const stompClient = new Client({
       // brokerURL, SockJS 2개 중 SockJS 
       // webSocketFactory: () => new SockJS('http://localhost:8080/ws'),
       webSocketFactory: () => new SockJS('http://localhost:8080/ws', null, { xhrWithCredentials: true }),
       reconnectDelay: 5000,
       debug: (str) => {
-        console.log('debug', str);
+        // console.log('debug', str);
       },
       onConnect: () => {
-        console.log('sockect connected');
+        console.warn('웹소켓 연결 완료');
         stompClient.subscribe(`/topic/${ stompChannel }`, (message) => {
-          console.log(`STOMP CHANNEL : ${ stompChannel } received message ${ message.body }`)
+          // console.log(`STOMP CHANNEL : ${ stompChannel } received message ${ message.body }`)
           switch (message.body) {
             case 'ALIVE':
-              console.log('STOMP CHANNEL : ALIVE')
+              // console.log('STOMP CHANNEL : ALIVE')
               break;
             case 'EXPIRED':
-              console.log('STOMP CHANNEL : EXPIRED')
+              // console.log('STOMP CHANNEL : EXPIRED')
               logout()
               setStompChannel("");
               localStorage.removeItem('stompChannel')
@@ -64,7 +64,7 @@ function SessionChecker() {
               alert("세션만료로 로그아웃되었습니다.");
               break;
             case 'DUPLICATE':
-              console.log('STOMP CHANNEL : DUPLICATE')
+              // console.log('STOMP CHANNEL : DUPLICATE')
               logout()
               setStompChannel("");
               localStorage.removeItem('stompChannel')
@@ -72,7 +72,7 @@ function SessionChecker() {
               alert("중복로그인으로 로그아웃 처리합니다.");
               break;
             case 'LOGOUT':
-              console.log('STOMP CHANNEL : LOGOUT')
+              // console.log('STOMP CHANNEL : LOGOUT')
               logout()
               setStompChannel("");
               localStorage.removeItem('stompChannel')
@@ -80,7 +80,7 @@ function SessionChecker() {
               alert("로그아웃 되었습니다.");
               break;
             case 'KICKED':
-              console.log('STOMP CHANNEL : KICKED')
+              // console.log('STOMP CHANNEL : KICKED')
               logout()
               setStompChannel("");
               localStorage.removeItem('stompChannel')
@@ -88,7 +88,7 @@ function SessionChecker() {
               navigate('/login');
               break;
             default:
-              console.log('STOMP CHANNEL : UNKNOWN')
+              // console.log('STOMP CHANNEL : UNKNOWN')
               logout()
               setStompChannel("");
               localStorage.removeItem('stompChannel');
@@ -97,11 +97,9 @@ function SessionChecker() {
           }
         });
         stompClient.subscribe('/user/queue/reply', (message) => {
-          console.log("PING BODY", message.body);
           if (message.body === 'ALIVE') {
             // login()
           }
-          console.log('isLoggedIn', isLoggedIn);
           if (isLoggedIn) {
             if (message.body === 'DUPLICATE') {
               logout()
@@ -120,8 +118,6 @@ function SessionChecker() {
             console.log("받은 메시지: ", message.body);
           }
         });
-
-        console.log('Client active:', stompClient.active); // 이 시점에서는 true여야 함
         setConnected(true);
         client.publish({
           destination: '/app/chat',
@@ -140,34 +136,6 @@ function SessionChecker() {
       onWebSocketClose: (evt) => {
         console.warn("웹소켓 연결 종료", evt);
         setConnected(false);
-        // if (isLoggedIn) {
-        //   axios
-        //     .get('http://localhost:8080/members/check', {
-        //       withCredentials: true
-        //     })
-        //     .then((response) => {
-        //       console.log(response.data)
-        //       // logout()
-        //       // navigate('/login')
-        //       // alert('this is by socket close')
-            
-        //     })
-        //     .catch((error) => {
-        //       console.log('웹소켓 끊기며 체크 api 보내고 401 받음.');
-        //       console.log('')
-        //       if (isLoggedIn) {
-        //         logout();
-        //         navigate('/login')
-        //         alert(error.response.data.message);
-        //         console.log(error)
-        //         console.log(error.response.data)
-        //       } else {
-        //         console.log('웹소켓 연결 끊기고 api 보냈는데 실패하고 로그인 상태아님')
-        //       }
-        //     });
-
-        // }
-        
       }
       
     });
@@ -233,21 +201,6 @@ function SessionChecker() {
 
           }
         }
-        // axios
-        // .post('http://localhost:8080/members/logouts', {
-        //   headers: {
-        //     "Content-Type": "application/json"
-        //   },
-        //   withCredentials: true
-        // })
-        // .then((response) => {
-        //   logout()
-        //   setStompChannel('')
-        //   localStorage.removeItem('stompChannel');
-        // })
-        // .catch((error) => {
-        //   console.error('API 호출 중 오류 발생:', error);
-        // });
     }}>
         로그아웃
       </button>

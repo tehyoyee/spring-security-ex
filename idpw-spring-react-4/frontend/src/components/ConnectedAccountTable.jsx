@@ -60,7 +60,6 @@ function ConnectedAccountTable() {
   const hasRedirected = useRef(false);
 
 // 클린업: 컴포넌트 언마운트 시 STOMP 클라이언트 비활성화
-  console.log('user', user)
   // 마운트 시점에 API 호출
   
       const invalidateSession = async (sessionId) => {
@@ -159,7 +158,7 @@ function ConnectedAccountTable() {
 
         <tbody>
           { accounts[0] && accounts.map((acc, idx) => (
-            <TableRow key={acc.idx}>
+            <TableRow key={idx}>
               <TableData>{acc.id}</TableData>
               <TableData>{acc.username}</TableData>
               <TableData>{acc.sessionId}</TableData>
